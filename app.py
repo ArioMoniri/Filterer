@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 import io
-import openpyxl
-
 
 # Title of the Streamlit app
 st.title('Data Filter & Export App')
