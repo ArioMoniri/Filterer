@@ -1,0 +1,60 @@
+import streamlit as st
+import pandas as pd
+import io
+
+# Streamlit app title
+st.title('LFQ Data Filter')
+
+# File uploader allows user to add their own file
+uploaded_file = st.file_uploader("Choose a file")
+
+if uploaded_file is not None:
+    # Read the uploaded file
+    df = pd.read_table(uploaded_file)
+
+    # Identify columns that start with "LFQ"
+    lfq_columns = [col for col in df.columns if col.startswith('LFQ')]
+
+    # Slider for selecting the percentage
+    percentage = st.slider('Minimum percentage of LFQ columns that are not 0:', 0, 100, 60)
+
+    # Filter the DataFrame
+    df['lfq_valid_percentage'] = df[lfq_columns].apply(lambda x: (x != 0).mean(), axis=1) * 100
+    filtered_df = df[df['lfq_valid_percentage'] >= percentage]
+    filtered_df = filtered_df.drop(columns=['lfq_valid_percentage'])
+
+    # Show the filtered DataFrame
+    st.dataframe(filtered_df)
+
+
+    # Download button for the filtered DataFrame as text file
+    @st.cache
+    def convert_df_to_csv(df):
+        return df.to_csv(sep='\t', index=False).encode('utf-8')
+
+
+    csv = convert_df_to_csv(filtered_df)
+    st.download_button(
+        label="Download data as TXT",
+        data=csv,
+        file_name='filtered_data.txt',
+        mime='text/csv',
+    )
+
+
+    # Download button for the filtered DataFrame as Excel file
+    @st.cache
+    def convert_df_to_excel(df):
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False)
+        return output.getvalue()
+
+
+    excel = convert_df_to_excel(filtered_df)
+    st.download_button(
+        label="Download data as Excel",
+        data=excel,
+        file_name='filtered_data.xlsx',
+        mime='application/vnd.ms-excel',
+    )
