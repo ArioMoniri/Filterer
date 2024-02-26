@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import io
+import xlsxwriter
 
 # Title of the Streamlit app
 st.title('Data Filter & Export App')
