@@ -47,4 +47,59 @@ if uploaded_file is not None:
         mime='text/csv',
     )
     
+import streamlit as st
+import pandas as pd
+import numpy as np
+from scipy import stats
+import io
+
+# Assuming df is your DataFrame after uploading and filtering
+
+# Function to perform ANOVA and t-tests
+def perform_statistical_tests(df):
+    # Filter columns starting with "LFQ" and replace 0s with NaN
+    lfq_columns = df.filter(regex='^LFQ').replace(0, np.nan)
+    
+    # Perform ANOVA
+    anova_result = stats.f_oneway(*(lfq_columns[col].dropna() for col in lfq_columns))
+    
+    # Store results in a dictionary for easy access
+    results = {'ANOVA': {'Statistic': anova_result.statistic, 'P-Value': anova_result.pvalue}}
+    
+    # Perform pairwise t-tests
+    t_tests = {}
+    for i, col1 in enumerate(lfq_columns.columns):
+        for col2 in lfq_columns.columns[i+1:]:
+            t_stat, p_val = stats.ttest_ind(lfq_columns[col1].dropna(), lfq_columns[col2].dropna(), nan_policy='omit')
+            t_tests[f'{col1} vs {col2}'] = {'T-Statistic': t_stat, 'P-Value': p_val}
+    
+    results['T-Tests'] = t_tests
+    return results
+
+# Function to convert results to a downloadable format
+@st.cache_data
+def convert_results_to_csv(results):
+    output = io.StringIO()
+    output.write("Test,Statistic,P-Value\n")
+    output.write(f"ANOVA,{results['ANOVA']['Statistic']},{results['ANOVA']['P-Value']}\n")
+    for test, values in results['T-Tests'].items():
+        output.write(f"{test},{values['T-Statistic']},{values['P-Value']}\n")
+    return output.getvalue().encode('utf-8')
+
+# Example usage in Streamlit after data is filtered and ready
+if st.button('Perform Statistical Tests'):
+    results = perform_statistical_tests(filtered_df)  # Assume filtered_df is your filtered DataFrame
+    st.write("ANOVA Test Result:", results['ANOVA'])
+    st.write("Pairwise T-Test Results:")
+    for test, values in results['T-Tests'].items():
+        st.write(f"{test}: {values}")
+    
+    # Convert results to CSV for download
+    csv_results = convert_results_to_csv(results)
+    st.download_button(
+        label="Download Test Results as CSV",
+        data=csv_results,
+        file_name='statistical_test_results.csv',
+        mime='text/csv',
+    )
 
