@@ -48,11 +48,12 @@ if uploaded_file is not None:
         mime='text/csv',
     )
     
-    # Adjusted function to use xlsxwriter for Excel file creation
+   # Adjusted function to use pandas for Excel file creation
     @st.cache_data
     def convert_df_to_excel(df):
         output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        # Using pandas' built-in Excel writer
+        with pd.ExcelWriter(output) as writer:
             df.to_excel(writer, index=False)
         output.seek(0)  # Go back to the beginning of the stream
         return output.getvalue()
