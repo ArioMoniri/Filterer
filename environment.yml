@@ -6,6 +6,7 @@ dependencies:
   - pandas
   - streamlit
   - io
+  - scipy
   - pip
   - pip:
       - package1
