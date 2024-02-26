@@ -47,22 +47,4 @@ if uploaded_file is not None:
         mime='text/csv',
     )
     
-   # Adjusted function to use pandas for Excel file creation
-    @st.cache_data
-    def convert_df_to_excel(df):
-        output = io.BytesIO()
-        # Using pandas' built-in Excel writer
-        with pd.ExcelWriter(output) as writer:
-            df.to_excel(writer, index=False)
-        output.seek(0)  # Go back to the beginning of the stream
-        return output.getvalue()
 
-    excel = convert_df_to_excel(filtered_df)
-    
-    # Download button for the filtered DataFrame as Excel file
-    st.download_button(
-        label="Download data as Excel",
-        data=excel,
-        file_name='filtered_data.xlsx',
-        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    )
