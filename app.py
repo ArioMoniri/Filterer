@@ -2,15 +2,20 @@ import streamlit as st
 import pandas as pd
 import io
 
-# Streamlit app title
-st.title('LFQ Data Filter')
+# Title of the Streamlit app
+st.title('Data Filter & Export App')
 
-# File uploader allows user to add their own file
+# Section to upload the file
 uploaded_file = st.file_uploader("Choose a file")
 
 if uploaded_file is not None:
     # Read the uploaded file
     df = pd.read_table(uploaded_file)
+    
+    # Display original data and its shape
+    st.write("Original Data:")
+    st.dataframe(df)
+    st.write("Original Shape:", df.shape)
     
     # Identify columns that start with "LFQ"
     lfq_columns = [col for col in df.columns if col.startswith('LFQ')]
@@ -18,19 +23,20 @@ if uploaded_file is not None:
     # Slider for selecting the percentage
     percentage = st.slider('Minimum percentage of LFQ columns that are not 0:', 0, 100, 60)
     
-    # Filter the DataFrame
+    # Calculate and filter the DataFrame
     df['lfq_valid_percentage'] = df[lfq_columns].apply(lambda x: (x != 0).mean(), axis=1) * 100
-    filtered_df = df[df['lfq_valid_percentage'] >= percentage]
-    filtered_df = filtered_df.drop(columns=['lfq_valid_percentage'])
+    filtered_df = df[df['lfq_valid_percentage'] >= percentage].drop(columns=['lfq_valid_percentage'])
     
-    # Show the filtered DataFrame
+    # Display filtered data and its shape
+    st.write("Filtered Data:")
     st.dataframe(filtered_df)
-    
+    st.write("Filtered Shape:", filtered_df.shape)
+
     # Function to convert DataFrame to CSV (bytes)
     @st.cache_data
     def convert_df_to_csv(df):
         return df.to_csv(sep='\t', index=False).encode('utf-8')
-    
+
     csv = convert_df_to_csv(filtered_df)
     
     # Download button for the filtered DataFrame as text file
@@ -41,14 +47,15 @@ if uploaded_file is not None:
         mime='text/csv',
     )
     
-    # Function to convert DataFrame to Excel (bytes)
+    # Adjusted function to use xlsxwriter for Excel file creation
     @st.cache_data
     def convert_df_to_excel(df):
         output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False)
+        output.seek(0)  # Go back to the beginning of the stream
         return output.getvalue()
-    
+
     excel = convert_df_to_excel(filtered_df)
     
     # Download button for the filtered DataFrame as Excel file
