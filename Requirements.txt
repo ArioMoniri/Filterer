@@ -3,3 +3,4 @@ pandas
 openpyxl
 io
 xlsxwriter
+pip install openpyxl
