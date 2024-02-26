@@ -1,0 +1,14 @@
+name: my_streamlit_app
+channels:
+  - defaults
+dependencies:
+  - python=3.9  # or any version you prefer
+  - pandas
+  - streamlit
+  - openpyxl
+  - xlsxwriter
+  - io
+  - pip
+  - pip:
+      - package1
+      - package2
