@@ -22,9 +22,12 @@ if uploaded_file is not None:
     st.write("Original Shape:", df.shape)
     
     # Ask if the user wants to delete contaminated proteins
-    if st.button("Do you want to delete contaminated proteins?"):
+    if st.checkbox("Do you want to delete contaminated proteins?"):
         df = filter_contaminated_proteins(df)
         st.success("Contaminated proteins deleted successfully.")
+        st.write("Filtered Data:")
+        st.dataframe(df)
+        st.write("Filtered Shape:", df.shape)
         
     # Identify columns that start with "LFQ"
     lfq_columns = [col for col in df.columns if col.startswith('LFQ')]
