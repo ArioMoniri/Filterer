@@ -23,7 +23,7 @@ def filter_prefixes(df):
     # Display checkboxes for each prefix and collect user selections
     st.write("Select the protein types you want to exclude:")
 
-        for prefix in unique_prefixes:
+    for prefix in unique_prefixes:
         # Create a checkbox for each unique prefix
         selections[prefix] = st.checkbox(prefix, True)
 
