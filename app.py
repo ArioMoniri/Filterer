@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 import io
 
+# Initialize session state for tracking user's decision on contaminated proteins
+if 'delete_contaminated' not in st.session_state:
+    st.session_state.delete_contaminated = None
+
 # Title of the Streamlit app
 st.title('Data Filterer')
 
@@ -20,14 +24,20 @@ if uploaded_file is not None:
     st.write("Original Data:")
     st.dataframe(df)
     st.write("Original Shape:", df.shape)
-    
+
     # Ask if the user wants to delete contaminated proteins
-    if st.checkbox("Do you want to delete contaminated proteins?"):
+    if st.checkbox("Do you want to delete contaminated proteins?", key='delete_check'):
         df = filter_contaminated_proteins(df)
+        st.session_state.delete_contaminated = True
         st.success("Contaminated proteins deleted successfully.")
         st.write("Filtered Data:")
         st.dataframe(df)
         st.write("Filtered Shape:", df.shape)
+    elif 'delete_check' in st.session_state:
+        st.session_state.delete_contaminated = False
+
+    # Conditionally display the rest of the app based on the user's choice
+    if st.session_state.delete_contaminated is not None:
         
     # Identify columns that start with "LFQ"
     lfq_columns = [col for col in df.columns if col.startswith('LFQ')]
@@ -135,3 +145,5 @@ if st.button('Perform Statistical Tests'):
         mime='text/csv',
     )
 
+
+        pass
