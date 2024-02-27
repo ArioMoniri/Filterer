@@ -1,4 +1,4 @@
 pandas
 streamlit
 io
-scipy == 1.12.0
+scipy 
