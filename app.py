@@ -7,7 +7,14 @@ if 'delete_contaminated' not in st.session_state:
     st.session_state.delete_contaminated = None
 
 
-# Function to extract and filter prefixes in the 'Protein IDs' column
+# Title of the Streamlit app
+st.title('Data Filterer')
+
+# Function to filter out contaminated proteins
+def filter_contaminated_proteins(df):
+    return df[~df['Protein IDs'].str.contains("CON")]
+
+# Function to filter based on protein ID prefixes
 def filter_prefixes(df):
     # Extract prefixes
     df['Prefix'] = df['Protein IDs'].apply(lambda x: x.split("|")[0])
@@ -26,13 +33,6 @@ def filter_prefixes(df):
     df.drop(columns=['Prefix'], inplace=True)
     
     return df
-
-# Title of the Streamlit app
-st.title('Data Filterer')
-
-# Function to filter out contaminated proteins
-def filter_contaminated_proteins(df):
-    return df[~df['Protein IDs'].str.contains("CON")]
 
 # Section to upload the file
 uploaded_file = st.file_uploader("Choose a file")
@@ -57,20 +57,21 @@ if uploaded_file is not None:
     elif 'delete_check' in st.session_state:
         st.session_state.delete_contaminated = False
 
-            # Show unique protein types before filtering
+    # Conditionally display the rest of the app based on the user's choice
+    if st.session_state.delete_contaminated is not None:
+        # Show unique protein types before filtering
         st.write("Protein types before filtering:")
         df['Prefix'] = df['Protein IDs'].apply(lambda x: x.split("|")[0])
         st.write(df['Prefix'].unique())
         df.drop(columns=['Prefix'], inplace=True)  # Clean up
-        
+
         # Ask user for prefix filters after showing unique types
         df = filter_prefixes(df)
         
-        # Continue with your analysis or display the DataFrame
-        st.write(df)
+        # Display the DataFrame after filtering
+        st.write("Data after filtering by prefixes:")
+        st.dataframe(df)
 
-if __name__ == "__main__":
-    main()
 
     # Conditionally display the rest of the app based on the user's choice
     if st.session_state.delete_contaminated is not None:
