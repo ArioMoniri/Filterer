@@ -169,7 +169,7 @@ if uploaded_file is not None:
                     log2_fold_change = np.log2(mean2 / mean1)
                 results['Log2 Fold Change'][f'{col1} vs {col2}'] = log2_fold_change
             
-          return results
+        return results
      
     # Function to convert results to a downloadable format
     @st.cache_data
