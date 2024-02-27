@@ -19,20 +19,35 @@ def filter_prefixes(df):
     # Extract prefixes
     df['Prefix'] = df['Protein IDs'].apply(lambda x: x.split("|")[0])
     unique_prefixes = df['Prefix'].unique()
-
+    selections = {}
     # Display checkboxes for each prefix and collect user selections
     st.write("Select the protein types you want to exclude:")
-    selections = {prefix: st.checkbox(prefix, True) for prefix in unique_prefixes}
+
+        for prefix in unique_prefixes:
+        # Create a checkbox for each unique prefix
+        selections[prefix] = st.checkbox(prefix, True)
+
+    # Filter the dataframe based on the selections
+    for prefix, selected in selections.items():
+        if selected:  # If the checkbox is checked, exclude this prefix
+            df = df[df['Prefix'] != prefix]
+
+    # Remove the 'Prefix' column as it's no longer needed after filtering
+    df.drop(columns=['Prefix'], inplace=True)
+
+    return df
+
+    #selections = {prefix: st.checkbox(prefix, True) for prefix in unique_prefixes}
 
     # Filter out unselected prefixes
-    for prefix, selected in selections.items():
-        if not selected:
-            df = df[~df['Prefix'].str.contains(prefix)]
+    #for prefix, selected in selections.items():
+        #if not selected:
+            #df = df[~df['Prefix'].str.contains(prefix)]
     
     # Drop the temporary 'Prefix' column
-    df.drop(columns=['Prefix'], inplace=True)
+    #df.drop(columns=['Prefix'], inplace=True)
     
-    return df
+    #return df
 
 # Section to upload the file
 uploaded_file = st.file_uploader("Choose a file")
