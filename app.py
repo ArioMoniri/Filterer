@@ -161,13 +161,15 @@ if uploaded_file is not None:
                 mean2 = lfq_columns[col2].mean()
             
                 # Log2 fold change
-                if mean1 == 0 or mean2 == 0:  # Avoid division by zero
-                    log2_fold_change = 'undefined'
+                if pd.isna(mean1) or pd.isna(mean2):
+                    log2_fold_change = 'not calculable'
+                elif mean1 == 0 or mean2 == 0:
+                     log2_fold_change = 'infinite'
                 else:
                     log2_fold_change = np.log2(mean2 / mean1)
-            results['Log2 Fold Change'][f'{col1} vs {col2}'] = log2_fold_change
+                results['Log2 Fold Change'][f'{col1} vs {col2}'] = log2_fold_change
             
-        return results
+    return results
     
     # Function to convert results to a downloadable format
     @st.cache_data
