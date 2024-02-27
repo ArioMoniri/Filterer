@@ -134,7 +134,7 @@ if uploaded_file is not None:
     import io
     
     # Assuming df is your DataFrame after uploading and filtering
-    
+    df = filtered_df
     # Function to perform ANOVA and t-tests
     def perform_statistical_tests(df):
         # Filter columns starting with "LFQ" and replace 0s with NaN
