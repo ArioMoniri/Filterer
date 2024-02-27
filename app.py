@@ -51,9 +51,9 @@ if uploaded_file is not None:
         df = filter_contaminated_proteins(df)
         st.session_state.delete_contaminated = True
         st.success("Contaminated proteins deleted successfully.")
-        st.write("Filtered Data:")
+        st.write("Filtered Data:",df.shape)
         st.dataframe(df)
-        st.write("Filtered Shape:", df.shape)
+        #st.write("Filtered Shape:", df.shape)
     elif 'delete_check' in st.session_state:
         st.session_state.delete_contaminated = False
 
