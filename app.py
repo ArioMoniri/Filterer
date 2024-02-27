@@ -46,6 +46,24 @@ if uploaded_file is not None:
         file_name='filtered_data.txt',
         mime='text/csv',
     )
+
+ # Function to convert DataFrame to Excel (bytes)
+    @st.cache_data
+    def convert_df_to_excel(df):
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False)
+        return output.getvalue()
+    
+    excel = convert_df_to_excel(filtered_df)
+    
+    # Download button for the filtered DataFrame as Excel file
+    st.download_button(
+        label="Download data as Excel",
+        data=excel,
+        file_name='filtered_data.xlsx',
+        mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
     
 import streamlit as st
 import pandas as pd
