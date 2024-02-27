@@ -144,7 +144,7 @@ if uploaded_file is not None:
         anova_result = stats.f_oneway(*(lfq_columns[col].dropna() for col in lfq_columns))
         
         # Store results in a dictionary for easy access
-            results = {
+        results = {
         'ANOVA': {'Statistic': anova_result.statistic, 'P-Value': anova_result.pvalue},
         'T-Tests': {},
         'Log2 Fold Change': {}
