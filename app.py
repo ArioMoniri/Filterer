@@ -42,9 +42,9 @@ if uploaded_file is not None:
     df = pd.read_table(uploaded_file)
     
     # Display original data and its shape
-    st.write("Original Data:")
+    st.write("Original Data:", df.shape)
     st.dataframe(df)
-    st.write("Original Shape:", df.shape)
+    #st.write("Original Shape:", df.shape)
 
     # Ask if the user wants to delete contaminated proteins
     if st.checkbox("Do you want to delete contaminated proteins?", key='delete_check'):
@@ -82,16 +82,16 @@ if uploaded_file is not None:
         # Continue with your analysis or display the DataFrame
         st.write(df)
         # Slider for selecting the percentage
-        percentage = st.slider('Minimum percentage of LFQ columns that are not 0:', 0, 100, 60)
+        percentage = st.slider('Minimum percentage of LFQ columns that are not 0:', 0, 100, 50)
         
         # Calculate and filter the DataFrame
         df['lfq_valid_percentage'] = df[lfq_columns].apply(lambda x: (x != 0).mean(), axis=1) * 100
         filtered_df = df[df['lfq_valid_percentage'] >= percentage].drop(columns=['lfq_valid_percentage'])
         
         # Display filtered data and its shape
-        st.write("Filtered Data:")
+        st.write("Filtered Data:",filtered_df.shape)
         st.dataframe(filtered_df)
-        st.write("Filtered Shape:", filtered_df.shape)
+        #st.write("Filtered Shape:", filtered_df.shape)
     
         # Function to convert DataFrame to CSV (bytes)
         @st.cache_data
