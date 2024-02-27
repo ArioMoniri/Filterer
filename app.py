@@ -5,6 +5,10 @@ import io
 # Title of the Streamlit app
 st.title('Data Filterer')
 
+# Function to filter out contaminated proteins
+def filter_contaminated_proteins(df):
+    return df[~df['Protein IDs'].str.contains("CON")]
+
 # Section to upload the file
 uploaded_file = st.file_uploader("Choose a file")
 
@@ -17,23 +21,16 @@ if uploaded_file is not None:
     st.dataframe(df)
     st.write("Original Shape:", df.shape)
     
-    def filter_contaminated_proteins(df):
-    return df[~df['Protein IDs'].str.contains("CON")]
-
     # Ask if the user wants to delete contaminated proteins
-        if st.button("Do you want to delete contaminated proteins?"):
-            df = filter_contaminated_proteins(df)
-            st.success("Contaminated proteins deleted successfully.")
+    if st.button("Do you want to delete contaminated proteins?"):
+        df = filter_contaminated_proteins(df)
+        st.success("Contaminated proteins deleted successfully.")
         
-        # Continue with your analysis or display the DataFrame
-        st.write(df)
-
-if __name__ == "__main__":
-    main()
-    
     # Identify columns that start with "LFQ"
     lfq_columns = [col for col in df.columns if col.startswith('LFQ')]
     
+    # Continue with your analysis or display the DataFrame
+    st.write(df)
     # Slider for selecting the percentage
     percentage = st.slider('Minimum percentage of LFQ columns that are not 0:', 0, 100, 60)
     
