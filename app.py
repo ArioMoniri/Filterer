@@ -6,6 +6,27 @@ import io
 if 'delete_contaminated' not in st.session_state:
     st.session_state.delete_contaminated = None
 
+
+# Function to extract and filter prefixes in the 'Protein IDs' column
+def filter_prefixes(df):
+    # Extract prefixes
+    df['Prefix'] = df['Protein IDs'].apply(lambda x: x.split("|")[0])
+    unique_prefixes = df['Prefix'].unique()
+
+    # Display checkboxes for each prefix and collect user selections
+    st.write("Select the protein types you want to exclude:")
+    selections = {prefix: st.checkbox(prefix, True) for prefix in unique_prefixes}
+
+    # Filter out unselected prefixes
+    for prefix, selected in selections.items():
+        if not selected:
+            df = df[~df['Prefix'].str.contains(prefix)]
+    
+    # Drop the temporary 'Prefix' column
+    df.drop(columns=['Prefix'], inplace=True)
+    
+    return df
+
 # Title of the Streamlit app
 st.title('Data Filterer')
 
@@ -35,6 +56,21 @@ if uploaded_file is not None:
         st.write("Filtered Shape:", df.shape)
     elif 'delete_check' in st.session_state:
         st.session_state.delete_contaminated = False
+
+            # Show unique protein types before filtering
+        st.write("Protein types before filtering:")
+        df['Prefix'] = df['Protein IDs'].apply(lambda x: x.split("|")[0])
+        st.write(df['Prefix'].unique())
+        df.drop(columns=['Prefix'], inplace=True)  # Clean up
+        
+        # Ask user for prefix filters after showing unique types
+        df = filter_prefixes(df)
+        
+        # Continue with your analysis or display the DataFrame
+        st.write(df)
+
+if __name__ == "__main__":
+    main()
 
     # Conditionally display the rest of the app based on the user's choice
     if st.session_state.delete_contaminated is not None:
