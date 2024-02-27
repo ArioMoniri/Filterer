@@ -70,7 +70,7 @@ if uploaded_file is not None:
         
         # Display the DataFrame after filtering
         st.write("Data after filtering by prefixes:")
-        st.dataframe(df)
+        #st.dataframe(df)
 
 
     # Conditionally display the rest of the app based on the user's choice
