@@ -187,7 +187,7 @@ if uploaded_file is not None:
         st.write("Pairwise T-Test Results:")
         for test, values in results['T-Tests'].items():
             st.write(f"{test}: T-Statistic: {values['T-Statistic']}, P-Value: {values['P-Value']}")
-             log2_fold_change = results['Log2 Fold Change'].get(test, 'undefined')
+            log2_fold_change = results['Log2 Fold Change'].get(test, 'undefined')
             # Check if log2_fold_change is a string and handle appropriately
             if isinstance(log2_fold_change, str):
                 st.write(f"Log2 Fold Change for {test}: {log2_fold_change}")
