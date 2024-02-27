@@ -144,26 +144,40 @@ if uploaded_file is not None:
         anova_result = stats.f_oneway(*(lfq_columns[col].dropna() for col in lfq_columns))
         
         # Store results in a dictionary for easy access
-        results = {'ANOVA': {'Statistic': anova_result.statistic, 'P-Value': anova_result.pvalue}}
-        
+            results = {
+        'ANOVA': {'Statistic': anova_result.statistic, 'P-Value': anova_result.pvalue},
+        'T-Tests': {},
+        'Log2 Fold Change': {}
+    }
         # Perform pairwise t-tests
         t_tests = {}
         for i, col1 in enumerate(lfq_columns.columns):
             for col2 in lfq_columns.columns[i+1:]:
                 t_stat, p_val = stats.ttest_ind(lfq_columns[col1].dropna(), lfq_columns[col2].dropna(), nan_policy='omit')
-                t_tests[f'{col1} vs {col2}'] = {'T-Statistic': t_stat, 'P-Value': p_val}
-        
-        results['T-Tests'] = t_tests
-        return results
+                results['T-Tests'][f'{col1} vs {col2}'] = {'T-Statistic': t_stat, 'P-Value': p_val}
+            
+                # Calculate mean values to determine fold changes
+                mean1 = lfq_columns[col1].mean()
+                mean2 = lfq_columns[col2].mean()
+            
+                # Log2 fold change
+                if mean1 == 0 or mean2 == 0:  # Avoid division by zero
+                    log2_fold_change = 'undefined'
+                else:
+                    log2_fold_change = np.log2(mean2 / mean1)
+            results['Log2 Fold Change'][f'{col1} vs {col2}'] = log2_fold_change
+            
+    return results
     
     # Function to convert results to a downloadable format
     @st.cache_data
     def convert_results_to_csv(results):
         output = io.StringIO()
-        output.write("Test,Statistic,P-Value\n")
+        output.write("Test,Statistic,P-Value,Log2 Fold Change\n")
         output.write(f"ANOVA,{results['ANOVA']['Statistic']},{results['ANOVA']['P-Value']}\n")
         for test, values in results['T-Tests'].items():
-            output.write(f"{test},{values['T-Statistic']},{values['P-Value']}\n")
+            log2_fold_change = results['Log2 Fold Change'].get(test, '')
+            output.write(f"{test},{values['T-Statistic']},{values['P-Value']},{log2_fold_change}\n")
         return output.getvalue().encode('utf-8')
     
     # Example usage in Streamlit after data is filtered and ready
@@ -172,7 +186,9 @@ if uploaded_file is not None:
         st.write("ANOVA Test Result:", results['ANOVA'])
         st.write("Pairwise T-Test Results:")
         for test, values in results['T-Tests'].items():
-            st.write(f"{test}: {values}")
+            st.write(f"{test}: T-Statistic: {values['T-Statistic']}, P-Value: {values['P-Value']}")
+            st.write(f"Log2 Fold Change for {test}: {results['Log2 Fold Change'][test]}")
+    
         
         # Convert results to CSV for download
         csv_results = convert_results_to_csv(results)
