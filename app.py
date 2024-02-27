@@ -69,8 +69,8 @@ if uploaded_file is not None:
         df = filter_prefixes(df)
         
         # Display the DataFrame after filtering
-        st.write("Data after filtering by prefixes:")
-        #st.dataframe(df)
+        st.write("Data after filtering by prefixes:",df.shape)
+        
 
 
     # Conditionally display the rest of the app based on the user's choice
